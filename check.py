@@ -57,11 +57,17 @@ def gh(*args: str) -> str:
 
 
 def open_outages() -> dict[str, dict]:
+    # Filter locally: `gh issue list --label` goes through an index that can lag
+    # a freshly created issue by several seconds.
     issues = json.loads(
-        gh("issue", "list", "--label", LABEL, "--state", "open",
-           "--json", "number,title,createdAt", "--limit", "100")
+        gh("issue", "list", "--state", "open",
+           "--json", "number,title,createdAt,labels", "--limit", "200")
     )
-    return {issue["title"]: issue for issue in issues}
+    return {
+        issue["title"]: issue
+        for issue in issues
+        if any(label["name"] == LABEL for label in issue["labels"])
+    }
 
 
 def failure_table(results: list[dict]) -> str:
