@@ -2,7 +2,8 @@ name: uptime
 
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    # Offset from :00/:05 marks, which GitHub delays or drops under load.
+    - cron: "3-58/5 * * * *"
   workflow_dispatch:
   push:
     branches: [main]
