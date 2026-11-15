@@ -1,0 +1,40 @@
+# Sites checked every 5 minutes. Keep in sync with the `urls` in atibbs/factory apps.yaml.
+# A URL is "up" when it answers with a status below 400 within the timeout
+# (redirects are followed, so login-gated apps still count as up).
+timeout_seconds: 20
+
+sites:
+  - id: non-dairy-dude
+    name: Non Dairy Dude
+    urls:
+      - https://nondairydude.com
+      - https://nondairydude.com/sitemap.xml
+  - id: postflight-app
+    name: PostFlight app
+    urls:
+      - https://app.getpostflight.com
+  - id: postflight-landing
+    name: PostFlight landing
+    urls:
+      - https://getpostflight.com
+  - id: whatihave-recipes
+    name: whatihave.recipes
+    urls:
+      - https://whatihave.recipes
+      - https://whatihave-recipes-api.fly.dev/api/status
+  - id: savedyouatoken
+    name: Saved You A Token
+    urls:
+      - https://savedyouatoken.com
+  - id: tibbs-dev
+    name: tibbs.dev
+    urls:
+      - https://tibbs.dev
+  - id: rerun
+    name: RERUN
+    urls:
+      - https://playrerun.com
+  - id: plaza-street
+    name: Plaza Street
+    urls:
+      - https://plaza-street.vercel.app
