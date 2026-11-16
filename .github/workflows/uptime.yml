@@ -1,9 +1,13 @@
 name: uptime
 
+# One long run checks every 5 minutes (loop.sh), then starts its successor.
+# GitHub's cron scheduler dropped most 5-minute runs on this account, so the
+# schedule below is only a backup that restarts the chain if it ever breaks.
+# The concurrency group keeps it to one chain: a backup run waits behind the
+# active loop, and any extra pending run is replaced by the next one.
 on:
   schedule:
-    # Offset from :00/:05 marks, which GitHub delays or drops under load.
-    - cron: "3-58/5 * * * *"
+    - cron: "7 * * * *"
   workflow_dispatch:
   push:
     branches: [main]
@@ -11,8 +15,8 @@ on:
 permissions:
   contents: read
   issues: write
+  actions: write   # lets the run start its successor with GITHUB_TOKEN
 
-# Never run two checks at once; a slow run just delays the next one.
 concurrency:
   group: uptime
   cancel-in-progress: false
@@ -20,13 +24,21 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 350
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Check sites
+      - name: Check sites every 5 minutes
+        timeout-minutes: 340
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-        run: python3 check.py
+          FACTORY_DISPATCH_TOKEN: ${{ secrets.FACTORY_DISPATCH_TOKEN }}
+          LOOP_MINUTES: "330"
+        run: bash loop.sh
+      - name: Start the next loop
+        if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run uptime.yml --repo "${{ github.repository }}" --ref main
